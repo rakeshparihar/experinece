@@ -132,7 +132,7 @@
     />
 
     <!-- Load GlamAR SDK via script tag as per documentation -->
-    <script src="https://cdn.glamarz0.de/sdk/wrapper"></script>
+    <script src="https://cdn.glamarz0.de/sdk/wrapper?"></script>
     <style>
       * {
         margin: 0;
@@ -816,6 +816,9 @@
             <div class="category-btn" onclick="showSubcategories('home')">
               Home
             </div>
+            <div class="category-btn" onclick="startSkinAnalysis()">
+              Skin Analysis
+            </div>
           </div>
         </div>
       </div>
@@ -1212,6 +1215,7 @@
             let config = {
               platform: "web",
               meta: {
+                sdkVersion: "2.0.0",
                 cameraResolution: currentCameraResolution,
               },
             };
@@ -1392,7 +1396,6 @@
             // Special configuration for skin analysis using user-provided App ID
             let config = {
               platform: "web",
-              sdkVersion: "1.0.0",
               mode: "private",
               category: "skinanalysis",
               configuration: {
@@ -1407,6 +1410,7 @@
                 },
               },
               meta: {
+                sdkVersion: "2.0.0",
                 debugText: isDebugTextOn,
                 cameraResolution: currentCameraResolution,
               },
@@ -1581,8 +1585,8 @@
             // Use absolute minimal configuration
             let config = {
               platform: "web",
-              sdkVersion: "1.0.0",
               meta: {
+                sdkVersion: "2.0.0",
                 debugText: isDebugTextOn,
                 cameraResolution: currentCameraResolution,
               },
@@ -1961,6 +1965,32 @@
           closeModal("skuModal");
         } else {
           alert("Please enter a SKU ID");
+        }
+      }
+
+      async function startSkinAnalysis() {
+        console.log("Skin analysis selected - showing App ID popup...");
+
+        // Close the category modal first
+        closeModal("categoryModal");
+
+        // Show App ID popup
+        const overlay = document.getElementById("appIdOverlay");
+        overlay.style.display = "flex";
+
+        // Try to load cached App ID and pre-fill
+        const appIdInput = document.getElementById("appIdInput");
+        const appIdButton = document.getElementById("appIdButton");
+
+        const cachedAppId = await loadAppId();
+        if (cachedAppId) {
+          console.log("Pre-filling with cached App ID...");
+          appIdInput.value = cachedAppId;
+          appIdButton.disabled = false;
+        } else {
+          console.log("No cached App ID found - starting with empty field...");
+          appIdInput.value = "";
+          appIdButton.disabled = true;
         }
       }
 
