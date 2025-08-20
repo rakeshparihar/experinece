@@ -79,60 +79,50 @@
     </title>
     <meta
       name="description"
-      content="Experience the future of beauty and fashion shopping with GlamAR's Virtual Try-On SDK. Try on makeup, eyewear, jewelry, and accessories virtually using advanced AR technology. Perfect for e-commerce integration and enhanced customer experience."
-    />
+      content="Experience the future of beauty and fashion shopping with GlamAR's Virtual Try-On SDK. Try on makeup, eyewear, jewelry, and accessories virtually using advanced AR technology. Perfect for e-commerce integration and enhanced customer experience." />
     <meta
       name="keywords"
-      content="GlamAR, virtual try-on, AR makeup, virtual eyewear, beauty AR, fashion technology, SDK demo, augmented reality"
-    />
+      content="GlamAR, virtual try-on, AR makeup, virtual eyewear, beauty AR, fashion technology, SDK demo, augmented reality" />
     <meta name="author" content="GlamAR" />
     <meta
       http-equiv="Permissions-Policy"
-      content="xr-spatial-tracking=(self)"
-    />
+      content="xr-spatial-tracking=(self)" />
 
     <!-- Favicon -->
     <link
       rel="icon"
       type="image/png"
-      href="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:64,w:64)/glamar_assets/glamar_logo_icon.png"
-    />
+      href="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:64,w:64)/glamar_assets/glamar_logo_icon.png" />
     <link
       rel="shortcut icon"
       type="image/png"
-      href="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:64,w:64)/glamar_assets/glamar_logo_icon.png"
-    />
+      href="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:64,w:64)/glamar_assets/glamar_logo_icon.png" />
     <link
       rel="apple-touch-icon"
-      href="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:90,w:90)/glamar_assets/glamar_logo_icon.png"
-    />
+      href="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:90,w:90)/glamar_assets/glamar_logo_icon.png" />
 
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="GlamAR Virtual Try-On SDK Demo" />
     <meta
       property="og:description"
-      content="Experience the future of beauty and fashion shopping with GlamAR's Virtual Try-On SDK. Try on makeup, eyewear, jewelry, and accessories virtually using advanced AR technology."
-    />
+      content="Experience the future of beauty and fashion shopping with GlamAR's Virtual Try-On SDK. Try on makeup, eyewear, jewelry, and accessories virtually using advanced AR technology." />
     <meta
       property="og:image"
-      content="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:90,w:90)/glamar_assets/glamar_logo_icon.png"
-    />
+      content="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:90,w:90)/glamar_assets/glamar_logo_icon.png" />
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="GlamAR Virtual Try-On SDK Demo" />
     <meta
       name="twitter:description"
-      content="Experience the future of beauty and fashion shopping with GlamAR's Virtual Try-On SDK. Try on makeup, eyewear, jewelry, and accessories virtually using advanced AR technology."
-    />
+      content="Experience the future of beauty and fashion shopping with GlamAR's Virtual Try-On SDK. Try on makeup, eyewear, jewelry, and accessories virtually using advanced AR technology." />
     <meta
       name="twitter:image"
-      content="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:90,w:90)/glamar_assets/glamar_logo_icon.png"
-    />
+      content="https://cdn.pixelbin.io/v2/glamar-fynd-835885/t.resize(h:90,w:90)/glamar_assets/glamar_logo_icon.png" />
 
     <!-- Load GlamAR SDK via script tag as per documentation -->
-    <script src="https://cdn.glamarz0.de/sdk/wrapper?"></script>
+    <script src="https://cdn.glamar.io/sdk/wrapper?"></script>
     <style>
       * {
         margin: 0;
@@ -657,8 +647,7 @@
           id="accessTokenInput"
           placeholder="Enter your GlamAR SDK Access Token"
           autocomplete="off"
-          spellcheck="false"
-        />
+          spellcheck="false" />
         <button id="accessTokenButton" onclick="setAccessToken()">
           Initialize SDK
         </button>
@@ -686,8 +675,7 @@
           placeholder="Enter your Skin Analysis App ID"
           autocomplete="off"
           spellcheck="false"
-          title="Suggested App ID: 1495dffb-38fe-4f0d-b785-200eea3705b9"
-        />
+          title="Suggested App ID: 1495dffb-38fe-4f0d-b785-200eea3705b9" />
         <button id="appIdButton" onclick="setAppId()">
           Start Skin Analysis
         </button>
@@ -747,14 +735,12 @@
         type="number"
         id="customWidth"
         placeholder="Width (px)"
-        value="800"
-      />
+        value="800" />
       <input
         type="number"
         id="customHeight"
         placeholder="Height (px)"
-        value="600"
-      />
+        value="600" />
       <button onclick="applyCustomSize()">Apply</button>
       <button class="cancel" onclick="hideCustomPanel()">Cancel</button>
     </div>
@@ -765,14 +751,12 @@
         type="number"
         id="customCameraWidth"
         placeholder="Width (px)"
-        value="1920"
-      />
+        value="1920" />
       <input
         type="number"
         id="customCameraHeight"
         placeholder="Height (px)"
-        value="1080"
-      />
+        value="1080" />
       <button onclick="applyCustomCamera()">Apply</button>
       <button class="cancel" onclick="hideCustomCameraPanel()">Cancel</button>
     </div>
@@ -809,8 +793,7 @@
             </div>
             <div
               class="category-btn"
-              onclick="showSubcategories('accessories')"
-            >
+              onclick="showSubcategories('accessories')">
               Accessories
             </div>
             <div class="category-btn" onclick="showSubcategories('home')">
@@ -849,8 +832,7 @@
           <p>Enter JSON configuration for multiple SKUs:</p>
           <textarea
             id="configInput"
-            placeholder='[{"sku":"sku1", "category":"lipstick"}, {"sku":"sku2", "category":"eyeglasses"}]'
-          ></textarea>
+            placeholder='[{"sku":"sku1", "category":"lipstick"}, {"sku":"sku2", "category":"eyeglasses"}]'></textarea>
           <button class="modal-button" onclick="applyConfig()">Apply</button>
         </div>
       </div>
