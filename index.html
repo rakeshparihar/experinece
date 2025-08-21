@@ -5,10 +5,8 @@
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>GlamAR Web SDK – Clicks Fixed</title>
-
-    <!-- Load GlamAR SDK -->
-    <script src="https://cdn.glamar.io/sdk/wrapper"></script>
+    <title>GlamAR Web SDK</title>
+    <script src="https://cdn.glamar.io/sdk/wrapper" defer></script>
 
     <style>
       html,
@@ -57,7 +55,6 @@
   </head>
   <body>
     <div id="glamar-container"></div>
-
     <div class="toolbar" role="toolbar" aria-label="GlamAR Controls">
       <button id="btnOpen" type="button">Open Live</button>
       <button id="btnApplySku" type="button">Apply SKU</button>
@@ -66,95 +63,107 @@
     </div>
 
     <script>
-      // ======= Fill these with real values =======
       const ACCESS_KEY = "2d5e01fd-2130-4b70-9071-f11ed3faec1b";
       const DEFAULT_CATEGORY = "sunglasses";
       const SAMPLE_SKU = "AC000932039S26";
-      // ==========================================
 
-      // Basic sanity
-      if (!ACCESS_KEY) console.error("GlamAR: ACCESS_KEY missing.");
+      let glamarSDK = null;
 
-      document.addEventListener("DOMContentLoaded", () => {
+      async function initSDK() {
         const options = {
           platform: "web",
           category: DEFAULT_CATEGORY,
           configuration: {
             global: {
-              // OPTION A: auto-open camera on init
-              openLiveOnInit: true,
-
-              // OPTION B: manual open (uncomment next line and set openLiveOnInit: false)
-              // openLiveOnInit: false,
-
+              openLiveOnInit: false,
               disableClose: false,
               disableBack: false,
             },
             ui: {
-              loader: {
-                disable: false,
-              },
+              loader: { disable: false },
               watermark: { text: "", fontColor: "", logo: "" },
             },
             ar: { disable3DUI: false },
           },
-          meta: { sdkVersion: "2.0.0" }, // optional, for diagnostics
-          // NOTE: no 'meta' block; it's not part of the documented Web config
         };
 
-        // Init
-        window.GlamAR.init("glamar-container", ACCESS_KEY, options);
+        try {
+          glamarSDK = await window.GlamAR.init(
+            "glamar-container",
+            ACCESS_KEY,
+            options
+          );
+          console.log("SDK initialized");
+          setupEventListeners();
+        } catch (error) {
+          console.error("SDK initialization failed:", error);
+        }
+      }
 
-        // Diagnostics
-        window.GlamAR.addEventListener("*", (e, payload) => {
-          console.log("[GlamAR]", e, payload || "");
-        });
-        window.GlamAR.addEventListener("error", (err) => {
-          console.error("SDK error:", err);
-        });
-
-        // Apply SKU when ready
+      function setupEventListeners() {
         window.GlamAR.addEventListener("loaded", () => {
-          console.log("SDK loaded — applying default SKU…");
-          if (typeof GlamAR.applyBySku === "function") {
-            GlamAR.applyBySku(SAMPLE_SKU);
-          }
+          console.log("SDK loaded");
         });
 
-        window.GlamAR.addEventListener("sku-applied", (p) => {
-          console.log("✅ SKU applied", p);
-        });
-        window.GlamAR.addEventListener("sku-failed", (p) => {
-          console.warn("❌ SKU failed", p);
+        window.GlamAR.addEventListener("ready", () => {
+          console.log("SDK ready");
         });
 
-        // Toolbar actions — explicit event listeners
-        document.getElementById("btnOpen").addEventListener("click", (e) => {
-          e.stopPropagation();
-          if (typeof GlamAR.open === "function") GlamAR.open();
+        window.GlamAR.addEventListener("error", (error) => {
+          console.error("SDK error:", error);
         });
 
         document
+          .getElementById("btnOpen")
+          .addEventListener("click", async () => {
+            try {
+              await window.GlamAR.open();
+              console.log("Camera opened");
+            } catch (error) {
+              console.error("Failed to open camera:", error);
+            }
+          });
+
+        document
           .getElementById("btnApplySku")
-          .addEventListener("click", (e) => {
-            e.stopPropagation();
-            if (typeof GlamAR.applyBySku === "function")
-              GlamAR.applyBySku(SAMPLE_SKU);
+          .addEventListener("click", async () => {
+            try {
+              await window.GlamAR.applyBySku(SAMPLE_SKU);
+              console.log("SKU applied");
+            } catch (error) {
+              console.error("Failed to apply SKU:", error);
+            }
           });
 
         document
           .getElementById("btnApplyCategory")
-          .addEventListener("click", (e) => {
-            e.stopPropagation();
-            if (typeof GlamAR.applyByCategory === "function")
-              GlamAR.applyByCategory(DEFAULT_CATEGORY);
+          .addEventListener("click", async () => {
+            try {
+              await window.GlamAR.applyByCategory(DEFAULT_CATEGORY);
+              console.log("Category applied");
+            } catch (error) {
+              console.error("Failed to apply category:", error);
+            }
           });
 
-        document.getElementById("btnClose").addEventListener("click", (e) => {
-          e.stopPropagation();
-          if (typeof GlamAR.close === "function") GlamAR.close();
-        });
-      });
+        document
+          .getElementById("btnClose")
+          .addEventListener("click", async () => {
+            try {
+              await window.GlamAR.close();
+              console.log("Camera closed");
+            } catch (error) {
+              console.error("Failed to close camera:", error);
+            }
+          });
+      }
+
+      // Initialize when DOM is ready
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initSDK);
+      } else {
+        initSDK();
+      }
     </script>
   </body>
 </html>
