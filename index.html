@@ -5,9 +5,9 @@
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>GlamAR Web SDK – Minimal Demo</title>
+    <title>GlamAR Web SDK – Clicks Fixed</title>
 
-    <!-- Load GlamAR SDK (script-tag only) -->
+    <!-- Load GlamAR SDK -->
     <script src="https://cdn.glamar.io/sdk/wrapper"></script>
 
     <style>
@@ -19,146 +19,141 @@
       body {
         font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       }
-      .toolbar {
-        position: fixed;
-        inset: auto 0 0 0;
-        display: flex;
-        gap: 8px;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(6px);
-        border-top: 1px solid #eee;
-        z-index: 10001;
-      }
-      .toolbar button {
-        padding: 10px 14px;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        cursor: pointer;
-        font-weight: 600;
-      }
-      .toolbar button:hover {
-        background: #f7f7f7;
-      }
       #glamar-container {
         position: fixed;
         inset: 0;
         width: 100vw;
         height: 100vh;
-        z-index: 1;
         background: #fff;
+        z-index: 1; /* SDK will create its own overlays; our toolbar will sit above them */
+      }
+
+      /* 🔥 Keep controls clickable above any SDK overlay */
+      .toolbar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        gap: 8px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(6px);
+        border-top: 1px solid #eee;
+        z-index: 2147483647; /* max practical z-index */
+        pointer-events: auto;
+      }
+      .toolbar button {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .toolbar button:hover {
+        background: #f7f7f7;
       }
     </style>
   </head>
-
   <body>
-    <!-- Fullscreen container for SDK -->
     <div id="glamar-container"></div>
 
-    <!-- Quick controls (optional) -->
-    <div class="toolbar">
-      <button id="btnOpen">Open Live</button>
-      <button id="btnApplySku">Apply SKU</button>
-      <button id="btnApplyCategory">Apply Category</button>
-      <button id="btnClose">Close</button>
+    <div class="toolbar" role="toolbar" aria-label="GlamAR Controls">
+      <button id="btnOpen" type="button">Open Live</button>
+      <button id="btnApplySku" type="button">Apply SKU</button>
+      <button id="btnApplyCategory" type="button">Apply Category</button>
+      <button id="btnClose" type="button">Close</button>
     </div>
 
     <script>
-      // ======= Replace these with your real values =======
-      const ACCESS_KEY = "2d5e01fd-2130-4b70-9071-f11ed3faec1b"; // required
-      const DEFAULT_CATEGORY = "YOUR_DEFAULT_CATEGORY"; // e.g. "sunglasses", "lipstick", "skinanalysis"
-      const SAMPLE_SKU = "AC000932039S26"; // any valid SKU that exists in your account
-      // ===================================================
+      // ======= Fill these with real values =======
+      const ACCESS_KEY = "2d5e01fd-2130-4b70-9071-f11ed3faec1b";
+      const DEFAULT_CATEGORY = "sunglasses";
+      const SAMPLE_SKU = "AC000932039S26";
+      // ==========================================
 
-      // Basic safety checks
-      if (
-        !ACCESS_KEY ||
-        ACCESS_KEY === "2d5e01fd-2130-4b70-9071-f11ed3faec1b"
-      ) {
-        console.error(
-          "GlamAR: Missing ACCESS_KEY. Replace the placeholder before testing."
-        );
-      }
+      // Basic sanity
+      if (!ACCESS_KEY) console.error("GlamAR: ACCESS_KEY missing.");
 
-      // Initialize on DOM ready
       document.addEventListener("DOMContentLoaded", () => {
-        // Minimal, correct config (no undocumented blocks)
         const options = {
           platform: "web",
           category: DEFAULT_CATEGORY,
           configuration: {
             global: {
-              openLiveOnInit: true, // auto open camera on init (flip to false if you prefer manual open)
+              // OPTION A: auto-open camera on init
+              openLiveOnInit: true,
+
+              // OPTION B: manual open (uncomment next line and set openLiveOnInit: false)
+              // openLiveOnInit: false,
+
               disableClose: false,
               disableBack: false,
             },
             ui: {
               loader: {
-                // correct key is "disable" (not "disabled")
-                disable: false, // set true to hide built-in loader
-                // jsonData: {},              // optional Lottie JSON
-                // backgroundColor: "#FFFFFF" // optional
+                disable: false,
               },
-              watermark: {
-                text: "",
-                fontColor: "",
-                logo: "",
-              },
+              watermark: { text: "", fontColor: "", logo: "" },
             },
-            ar: {
-              // Controls 3D viewer UI when a 3D-enabled SKU is applied
-              disable3DUI: false,
-            },
+            ar: { disable3DUI: false },
           },
-          meta: {
-            sdkVersion: "2.0.0",
-          },
+          meta: { sdkVersion: "2.0.0" }, // optional, for diagnostics
+          // NOTE: no 'meta' block; it's not part of the documented Web config
         };
 
         // Init
         window.GlamAR.init("glamar-container", ACCESS_KEY, options);
 
-        // Recommended baseline listeners
-        window.GlamAR.addEventListener("*", (event, payload) => {
-          console.log("[GlamAR Event]", event, payload || "");
+        // Diagnostics
+        window.GlamAR.addEventListener("*", (e, payload) => {
+          console.log("[GlamAR]", e, payload || "");
         });
-
-        window.GlamAR.addEventListener("loaded", () => {
-          console.log("GlamAR loaded — ready.");
-        });
-
         window.GlamAR.addEventListener("error", (err) => {
-          console.error("GlamAR error:", err);
+          console.error("SDK error:", err);
         });
 
-        // Controls
-        document.getElementById("btnOpen").onclick = () => {
-          if (window.GlamAR && typeof window.GlamAR.open === "function") {
-            window.GlamAR.open();
+        // Apply SKU when ready
+        window.GlamAR.addEventListener("loaded", () => {
+          console.log("SDK loaded — applying default SKU…");
+          if (typeof GlamAR.applyBySku === "function") {
+            GlamAR.applyBySku(SAMPLE_SKU);
           }
-        };
+        });
 
-        document.getElementById("btnApplySku").onclick = () => {
-          if (window.GlamAR && typeof window.GlamAR.applyBySku === "function") {
-            window.GlamAR.applyBySku(SAMPLE_SKU);
-          }
-        };
+        window.GlamAR.addEventListener("sku-applied", (p) => {
+          console.log("✅ SKU applied", p);
+        });
+        window.GlamAR.addEventListener("sku-failed", (p) => {
+          console.warn("❌ SKU failed", p);
+        });
 
-        document.getElementById("btnApplyCategory").onclick = () => {
-          if (
-            window.GlamAR &&
-            typeof window.GlamAR.applyByCategory === "function"
-          ) {
-            // Example: apply a subcategory like "sunglasses", "lipstick", etc.
-            window.GlamAR.applyByCategory(DEFAULT_CATEGORY);
-          }
-        };
+        // Toolbar actions — explicit event listeners
+        document.getElementById("btnOpen").addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (typeof GlamAR.open === "function") GlamAR.open();
+        });
 
-        document.getElementById("btnClose").onclick = () => {
-          if (window.GlamAR && typeof window.GlamAR.close === "function") {
-            window.GlamAR.close();
-          }
-        };
+        document
+          .getElementById("btnApplySku")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (typeof GlamAR.applyBySku === "function")
+              GlamAR.applyBySku(SAMPLE_SKU);
+          });
+
+        document
+          .getElementById("btnApplyCategory")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (typeof GlamAR.applyByCategory === "function")
+              GlamAR.applyByCategory(DEFAULT_CATEGORY);
+          });
+
+        document.getElementById("btnClose").addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (typeof GlamAR.close === "function") GlamAR.close();
+        });
       });
     </script>
   </body>
