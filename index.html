@@ -79,7 +79,9 @@
 
           const timeoutId = setTimeout(() => {
             observer.disconnect();
-            reject(new Error(`Element ${elementId} not found within ${timeout}ms`));
+            reject(
+              new Error(`Element ${elementId} not found within ${timeout}ms`)
+            );
           }, timeout);
 
           const observer = new MutationObserver(() => {
@@ -121,18 +123,6 @@
           const options = {
             platform: "web",
             category: DEFAULT_CATEGORY,
-            configuration: {
-              global: {
-                openLiveOnInit: false,
-                disableClose: false,
-                disableBack: false,
-              },
-              ui: {
-                loader: { disable: false },
-                watermark: { text: "", fontColor: "", logo: "" },
-              },
-              ar: { disable3DUI: false },
-            },
             meta: {
               sdkVersion: "2.0.0",
             },
@@ -145,7 +135,7 @@
             options
           );
 
-          console.log("SDK initialized");
+          console.log("------SDK initialized");
           setupEventListeners();
         } catch (error) {
           console.error("SDK initialization failed:", error);
@@ -164,7 +154,7 @@
           console.log("SDK loaded");
         });
 
-        window.GlamAR.addEventListener("ready", () => {
+        window.GlamAR.addEventListener("loading", () => {
           console.log("SDK ready");
           enableButtons();
         });
