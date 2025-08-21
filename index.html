@@ -6,7 +6,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>GlamAR Web SDK</title>
-    <script src="https://cdn.glamar.io/sdk/wrapper" defer></script>
+    <!-- Remove defer to ensure script loads before initialization -->
+    <script src="https://cdn.glamar.io/sdk/wrapper"></script>
 
     <style>
       html,
@@ -69,33 +70,60 @@
 
       let glamarSDK = null;
 
-      async function initSDK() {
-        const options = {
-          platform: "web",
-          category: DEFAULT_CATEGORY,
-          configuration: {
-            global: {
-              openLiveOnInit: false,
-              disableClose: false,
-              disableBack: false,
-            },
-            ui: {
-              loader: { disable: false },
-              watermark: { text: "", fontColor: "", logo: "" },
-            },
-            ar: { disable3DUI: false },
-          },
-          meta: {
-            sdkVersion: "2.0.0",
-          },
-        };
+      function waitForElement(elementId) {
+        return new Promise((resolve) => {
+          if (document.getElementById(elementId)) {
+            return resolve(document.getElementById(elementId));
+          }
 
+          const observer = new MutationObserver(() => {
+            if (document.getElementById(elementId)) {
+              resolve(document.getElementById(elementId));
+              observer.disconnect();
+            }
+          });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+          });
+        });
+      }
+
+      async function initSDK() {
         try {
+          // Wait for container element to be ready
+          await waitForElement("glamar-container");
+
+          // Wait for SDK to be available
+          if (!window.GlamAR) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
+
+          const options = {
+            platform: "web",
+            category: DEFAULT_CATEGORY,
+            configuration: {
+              global: {
+                openLiveOnInit: false,
+                disableClose: false,
+                disableBack: false,
+              },
+              ui: {
+                loader: { disable: false },
+                watermark: { text: "", fontColor: "", logo: "" },
+              },
+              ar: { disable3DUI: false },
+            },
+          };
+
+          // Initialize SDK
           glamarSDK = await window.GlamAR.init(
             "glamar-container",
             ACCESS_KEY,
             options
           );
+
           console.log("SDK initialized");
           setupEventListeners();
         } catch (error) {
@@ -104,69 +132,58 @@
       }
 
       function setupEventListeners() {
+        if (!window.GlamAR) {
+          console.error("GlamAR SDK not found");
+          return;
+        }
+
         window.GlamAR.addEventListener("loaded", () => {
           console.log("SDK loaded");
         });
 
         window.GlamAR.addEventListener("ready", () => {
           console.log("SDK ready");
+          enableButtons();
         });
 
         window.GlamAR.addEventListener("error", (error) => {
           console.error("SDK error:", error);
         });
 
-        document
-          .getElementById("btnOpen")
-          .addEventListener("click", async () => {
-            try {
-              await window.GlamAR.open();
-              console.log("Camera opened");
-            } catch (error) {
-              console.error("Failed to open camera:", error);
-            }
-          });
-
-        document
-          .getElementById("btnApplySku")
-          .addEventListener("click", async () => {
-            try {
-              await window.GlamAR.applyBySku(SAMPLE_SKU);
-              console.log("SKU applied");
-            } catch (error) {
-              console.error("Failed to apply SKU:", error);
-            }
-          });
-
-        document
-          .getElementById("btnApplyCategory")
-          .addEventListener("click", async () => {
-            try {
-              await window.GlamAR.applyByCategory(DEFAULT_CATEGORY);
-              console.log("Category applied");
-            } catch (error) {
-              console.error("Failed to apply category:", error);
-            }
-          });
-
-        document
-          .getElementById("btnClose")
-          .addEventListener("click", async () => {
-            try {
-              await window.GlamAR.close();
-              console.log("Camera closed");
-            } catch (error) {
-              console.error("Failed to close camera:", error);
-            }
-          });
+        setupButtonHandlers();
       }
 
-      // Initialize when DOM is ready
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initSDK);
-      } else {
-        initSDK();
+      function setupButtonHandlers() {
+        const buttons = {
+          btnOpen: async () => await window.GlamAR.open(),
+          btnApplySku: async () => await window.GlamAR.applyBySku(SAMPLE_SKU),
+          btnApplyCategory: async () =>
+            await window.GlamAR.applyByCategory(DEFAULT_CATEGORY),
+          btnClose: async () => await window.GlamAR.close(),
+        };
+
+        Object.entries(buttons).forEach(([id, handler]) => {
+          const button = document.getElementById(id);
+          if (button) {
+            button.addEventListener("click", async () => {
+              try {
+                await handler();
+                console.log(`${id} action successful`);
+              } catch (error) {
+                console.error(`${id} action failed:`, error);
+              }
+            });
+          }
+        });
       }
+
+      function enableButtons() {
+        const buttons = document.querySelectorAll(".toolbar button");
+        buttons.forEach((button) => button.removeAttribute("disabled"));
+      }
+
+      // Start initialization when document is ready
+      document.addEventListener("DOMContentLoaded", initSDK);
     </script>
   </body>
 </html>
